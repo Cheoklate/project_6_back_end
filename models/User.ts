@@ -1,7 +1,13 @@
 import { model, Schema } from 'mongoose';
 
+const friendSchema: Schema = new Schema({
+	userName: String,
+});
+
 const userSchema: Schema = new Schema(
 	{
+		firstName: String,
+		lastName: String,
 		username: String,
 		email: {
 			type: String,
@@ -12,6 +18,7 @@ const userSchema: Schema = new Schema(
 			match: /.+\@.+\..+/,
 		},
 		password: { type: String, required: true },
+		userFriends: [friendSchema],
 	},
 	{ timestamps: true }
 );
