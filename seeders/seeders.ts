@@ -24,7 +24,7 @@ const userSeeds = [
 		firstName: 'Grace',
 		lastName: 'Koh',
 		username: 'GracetheDragon',
-		email: '',
+		email: 'gracethedragon@hotmail.com',
 		password: hash,
 		friends: [{ userName: 'Cheoklate' }, { userName: 'Smdewi' }],
 	},
