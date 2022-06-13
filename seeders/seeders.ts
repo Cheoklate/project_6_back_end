@@ -7,7 +7,7 @@ dotenv.config();
 
 const hash = bcrypt.hashSync('123', 10);
 
-mongoose.connect('mongodb://127.0.0.1:27017/project5', () => {
+mongoose.connect('mongodb://127.0.0.1:27017/project6', () => {
 	console.log('connected to mongodb');
 });
 
@@ -31,8 +31,8 @@ const userSeeds = [
 	{
 		firstName: 'Sri',
 		lastName: 'Mulyanidewi',
-		username: 'Smdewi',
-		email: '',
+		username: 'dewi',
+		email: 'smdewi2020@gmail.com',
 		password: hash,
 		friends: [{ userName: 'GracetheDragon' }, { userName: 'Cheoklate' }],
 	},
