@@ -31,7 +31,7 @@ const userSeeds = [
 	{
 		firstName: 'Sri',
 		lastName: 'Mulyanidewi',
-		username: 'Smdewi',
+		username: 'dewi',
 		email: 'smdewi2020@gmail.com',
 		password: hash,
 		friends: [{ userName: 'GracetheDragon' }, { userName: 'Cheoklate' }],
