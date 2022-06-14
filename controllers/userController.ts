@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+// import jwt from 'jsonwebtoken';
+// import crypto from 'crypto';
 import { Response, Request } from 'express';
 import User from '../models/User';
 import bcryptConfig from '../config/bcrypt';
-import crypto from 'crypto';
 
 const UserController = {
 	login: async (req: Request, res: Response) => {
