@@ -1,4 +1,4 @@
-import { createServer } from 'http';
+// import { createServer } from 'http';
 import cors from 'cors';
 import express from 'express';
 import mongoose from 'mongoose';
@@ -28,4 +28,4 @@ app.use(router);
 const PORT = process.env.PORT || 3004;
 app.listen(PORT);
 
-const httpServer = createServer(app);
+// const httpServer = createServer(app);
