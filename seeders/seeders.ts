@@ -18,7 +18,7 @@ const userSeeds = [
 		username: 'Cheoklate',
 		email: 'gcheok88@gmail.com',
 		password: hash,
-		friends: [{ userName: 'GracetheDragon' }, { userName: 'Smdewi' }],
+		userFriends: [{ userName: 'GracetheDragon' }, { userName: 'Smdewi' }],
 	},
 	{
 		firstName: 'Grace',
@@ -26,7 +26,7 @@ const userSeeds = [
 		username: 'GracetheDragon',
 		email: 'gracethedragon@hotmail.com',
 		password: hash,
-		friends: [{ userName: 'Cheoklate' }, { userName: 'Smdewi' }],
+		userFriends: [{ userName: 'Cheoklate' }, { userName: 'Smdewi' }],
 	},
 	{
 		firstName: 'Sri',
@@ -34,7 +34,7 @@ const userSeeds = [
 		username: 'dewi',
 		email: 'smdewi2020@gmail.com',
 		password: hash,
-		friends: [{ userName: 'GracetheDragon' }, { userName: 'Cheoklate' }],
+		userFriends: [{ userName: 'GracetheDragon' }, { userName: 'Cheoklate' }],
 	},
 ];
 
