@@ -4,7 +4,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import router from './routes/userRoutes';
 
-mongoose.connect('mongodb://127.0.0.1:27017/project5', () => {
+mongoose.connect('mongodb://127.0.0.1:27017/project6', () => {
 	console.log('connected to mongodb');
 });
 
