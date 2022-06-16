@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
-    "@types/cors": "^2.8.12"
+    "@types/cors": "^2.8.12",
+    "mongoose": "^6.3.8"
   }
 }
