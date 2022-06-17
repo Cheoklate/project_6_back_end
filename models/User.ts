@@ -31,7 +31,9 @@ const habitStreakSchema: Schema = new Schema({
 const reminderSchema: Schema = new Schema({
 	reminderMethod: String,
 	reminderMethodContact: String,
-	reminderTime: Date,
+  reminderFrequencyUnit: String,
+  reminderFrequencyNumber: Number,
+	reminderTime: String,
 });
 
 const habitSchema: Schema = new Schema({
