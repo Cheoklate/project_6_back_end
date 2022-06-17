@@ -19,6 +19,36 @@ const userSeeds = [
 		email: 'gcheok88@gmail.com',
 		password: hash,
 		userFriends: [{ userName: 'GracetheDragon' }, { userName: 'Smdewi' }],
+		habits: [
+			{
+				habitName: 'test habit',
+				habitDesc: '123',
+				isPublic: true,
+				frequencyUnit: 'daily',
+				frequencyNumber: 0,
+				sharedWith: [{ userName: 'dewi' }],
+				habitAction: [
+					{ action: 'Done', date: new Date('2014-01-22T14:56:59.301Z') },
+				],
+				habitStreak: [
+					{
+						totalCompleted: 1,
+						completedCount: 2,
+						streakCount: 1,
+						numberSkips: 0,
+					},
+				],
+				reminders: [
+					{
+						reminderMethod: 'telegram',
+						reminderMethodContact: 'cheoklate',
+						reminderFrequencyUnit: 'daily',
+						reminderFrequencyNumber: 0,
+						reminderTime: '00:00:00',
+					},
+				],
+			},
+		],
 	},
 	{
 		firstName: 'Grace',
