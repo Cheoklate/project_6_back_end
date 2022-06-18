@@ -5,19 +5,15 @@ const friendSchema: Schema = new Schema({
 });
 
 const friendRequestSentSchema: Schema = new Schema({
-  userName: String,
+	userName: String,
 });
 
 const friendRequestReceivedSchema: Schema = new Schema({
-  userName: String,
-});
-
-const sharedWithSchema: Schema = new Schema({
-  userName: String,
+	userName: String,
 });
 
 const habitActionSchema: Schema = new Schema({
-  action: String,
+	action: String,
 	date: Date,
 });
 
@@ -33,40 +29,57 @@ const reminderSchema: Schema = new Schema({
 	reminderMethodContact: String,
   reminderFrequencyUnit: String,
 	reminderFrequencyNumber: Number,
-	reminderTime: Date,
+	reminderTime: String,
 });
 
 const habitSchema: Schema = new Schema({
+  _id: Schema.Types.ObjectId,
 	habitName: String,
 	habitDesc: String,
 	isPublic: Boolean,
 	frequencyUnit: String,
 	frequencyNumber: Number,
-	sharedWith: [sharedWithSchema],
-	habitAction: [habitActionSchema],
-	habitStreak: [habitStreakSchema],
-	reminders: [reminderSchema],
+	
 });
 
 const userSchema: Schema = new Schema(
-  {
-    firstName: String,
-    lastName: String,
-    userName: String,
-    email: {
-      type: String,
-      lowercase: true,
-      required: true,
-      unique: true,
-      trim: true,
-      match: /.+\@.+\..+/,
-    },
-    password: { type: String, required: true },
-    userFriends: [friendSchema],
-    friendRequestSent: [friendRequestSentSchema],
-    friendRequestReceived: [friendRequestReceivedSchema],
-		habits: [habitSchema],
-  },
-  { timestamps: true }
+	{
+		_id: Schema.Types.ObjectId,
+		firstName: String,
+		lastName: String,
+		userName: String,
+		email: {
+			type: String,
+			lowercase: true,
+			required: true,
+			unique: true,
+			trim: true,
+			match: /.+\@.+\..+/,
+		},
+		password: { type: String, required: true },
+		userFriends: [friendSchema],
+		friendRequestSent: [friendRequestSentSchema],
+		friendRequestReceived: [friendRequestReceivedSchema],
+		userHabits: [
+			{
+				usersHabits_id: {
+					type: Schema.Types.ObjectId,
+					ref: 'Habit',
+				},
+				habitAction: [habitActionSchema],
+				habitStreak: [habitStreakSchema],
+				reminders: [reminderSchema],
+			},
+		],
+	},
+	{ timestamps: true }
 );
-export default model('User', userSchema);
+// const habitSchema: Schema = newSchema(
+//   {}
+// )
+
+const Habit = model('Habit', habitSchema);
+const User = model('User', userSchema);
+// export default model('User', userSchema);
+
+export {Habit, User}
