@@ -27,16 +27,9 @@ const habitStreakSchema: Schema = new Schema({
 const reminderSchema: Schema = new Schema({
 	reminderMethod: String,
 	reminderMethodContact: String,
-	reminderFrequencyUnit: String,
+  reminderFrequencyUnit: String,
 	reminderFrequencyNumber: Number,
 	reminderTime: String,
-});
-
-const sharedWithSchema: Schema = new Schema({
-	usersSharedWith_id: {
-		type: Schema.Types.ObjectId,
-		ref: 'User',
-	},
 });
 
 const habitSchema: Schema = new Schema({
@@ -46,7 +39,7 @@ const habitSchema: Schema = new Schema({
 	isPublic: Boolean,
 	frequencyUnit: String,
 	frequencyNumber: Number,
-	sharedWith: [sharedWithSchema],
+	
 });
 
 const userSchema: Schema = new Schema(
@@ -87,4 +80,6 @@ const userSchema: Schema = new Schema(
 
 const Habit = model('Habit', habitSchema);
 const User = model('User', userSchema);
-export default model('User', userSchema);
+// export default model('User', userSchema);
+
+export {Habit, User}
