@@ -66,7 +66,8 @@ const userSchema: Schema = new Schema(
 		friendRequestReceived: [friendRequestReceivedSchema],
 		userHabits: [
 			{
-				usersHabits_id: {
+				_id: false,
+				userHabits_id: {
 					type: Schema.Types.ObjectId,
 					ref: 'Habit',
 				},

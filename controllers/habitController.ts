@@ -25,7 +25,9 @@ const HabitController = {
 				frequencyNumber,
 				reminderFrequencyUnit, 
 				reminderFrequencyNumber, 
-				reminderTime
+				reminderTime,
+				reminderMethod, 
+				reminderMethodContact
 			} = req.body;
 
 			if (!habitName || !habitDesc || !frequencyUnit
@@ -39,20 +41,22 @@ const HabitController = {
 				isPublic,
 				frequencyUnit,
 				frequencyNumber,
+				sharedWith:[{userId}]
 			}).save()
 
 			console.log(newHabit._id, 'new habit')
 
 			const assignUserHabit = await User.findByIdAndUpdate(userId, {$push: {
 							userHabits: {
-								usersHabits_id: newHabit._id,
+								userHabits_id: newHabit._id,
 								reminders:{
-									reminderFrequencyNumber,
+									reminderMethod, 
+									reminderMethodContact,
 									reminderFrequencyUnit,
+									reminderFrequencyNumber,
 									reminderTime
 								},
 				}}})
-
 				
 				console.log( 'assign user habit')
 			
