@@ -35,6 +35,7 @@ const userSeeds = [
 		userHabits: [
 			{
 				userHabits_id: { _id: '62aae3416434f773dcfa9bd4' },
+				habitName: 'test habit',
 				habitAction: [
 					{ action: 'Done', date: new Date('2014-01-22T14:56:59.301Z') },
 				],

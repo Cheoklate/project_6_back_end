@@ -13,11 +13,13 @@ const friendRequestReceivedSchema: Schema = new Schema({
 });
 
 const habitActionSchema: Schema = new Schema({
+	// _id: false,
 	action: String,
 	date: Date,
 });
 
 const habitStreakSchema: Schema = new Schema({
+	// _id: false,
 	totalCompleted: Number,
 	completedCount: Number,
 	streakCount: Number,
@@ -71,6 +73,7 @@ const userSchema: Schema = new Schema(
 					type: Schema.Types.ObjectId,
 					ref: 'Habit',
 				},
+				habitName: String,
 				habitAction: [habitActionSchema],
 				habitStreak: habitStreakSchema,
 				reminders: reminderSchema,
