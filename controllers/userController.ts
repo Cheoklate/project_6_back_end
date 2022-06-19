@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 // import jwt from 'jsonwebtoken';
 // import crypto from 'crypto';
 import { Response, Request } from 'express';
-import User from '../models/User';
+import {User} from '../models/User';
 import bcryptConfig from '../config/bcrypt';
 
 
@@ -35,6 +35,7 @@ const UserController = {
 	},
 	signup: async (req: Request, res: Response) => {
 		const userFriends = [];
+		
 		try {
 			const {
 				firstName,

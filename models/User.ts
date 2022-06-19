@@ -33,13 +33,17 @@ const reminderSchema: Schema = new Schema({
 });
 
 const habitSchema: Schema = new Schema({
-  _id: Schema.Types.ObjectId,
+	_id: Schema.Types.ObjectId,
 	habitName: String,
 	habitDesc: String,
 	isPublic: Boolean,
 	frequencyUnit: String,
 	frequencyNumber: Number,
-	
+	sharedWith:[{ 
+		usersSharedWith_id: {
+			type: Schema.Types.ObjectId,
+			ref: 'User'}
+		}]
 });
 
 const userSchema: Schema = new Schema(
@@ -67,8 +71,8 @@ const userSchema: Schema = new Schema(
 					ref: 'Habit',
 				},
 				habitAction: [habitActionSchema],
-				habitStreak: [habitStreakSchema],
-				reminders: [reminderSchema],
+				habitStreak: habitStreakSchema,
+				reminders: reminderSchema,
 			},
 		],
 	},

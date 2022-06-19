@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import mongoose from 'mongoose';
-import User from '../models/User';
+import {Habit, User} from '../models/User';
 
 
 const HabitController = {
@@ -32,19 +32,34 @@ const HabitController = {
 				)
 				return res.status(400).json({ message: 'Missing data' });
 			
-			const newHabit = await User.findByIdAndUpdate({_id:userId}, {$push: {
-						habits: {
-								habitName,
-								habitDesc,
-								isPublic,
-								frequencyUnit,
-								frequencyNumber,
-							}
-					},}).exec();
+			const newHabit = await new Habit({
+				_id: new mongoose.Types.ObjectId(),
+				habitName,
+				habitDesc,
+				isPublic,
+				frequencyUnit,
+				frequencyNumber,
+			}).save()
 
-			console.log(newHabit)
-			return res.status(201).json(newHabit);
+			console.log(newHabit._id, 'new habit')
+
+			const assignUserHabit = await User.findByIdAndUpdate(userId, {$push: {
+							userHabits: {
+								usersHabits_id: newHabit._id,
+								reminders:{
+									reminderFrequencyNumber,
+									reminderFrequencyUnit,
+									reminderTime
+								},
+				}}})
+
+				
+				console.log( 'assign user habit')
+			
+			return res.status(201).json(assignUserHabit);
 		} catch (err) {
+
+			console.log(err,'err')
 			return res.status(500).json({ message: 'Internal Server Error' , err});
 		}
 	},
