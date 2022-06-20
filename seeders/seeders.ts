@@ -35,18 +35,18 @@ const userSeeds = [
 		userHabits: [
 			{
 				userHabits_id: { _id: '62aae3416434f773dcfa9bd4' },
+				habitName: 'test habit',
 				habitAction: [
 					{ action: 'Done', date: new Date('2014-01-22T14:56:59.301Z') },
 				],
-				habitStreak: [
+				habitStreak: 
 					{
 						totalCompleted: 1,
 						completedCount: 2,
 						streakCount: 1,
 						numberSkips: 0,
 					},
-				],
-				reminders: [
+				reminders: 
 					{
 						reminderMethod: 'telegram',
 						reminderMethodContact: 'cheoklate',
@@ -54,7 +54,6 @@ const userSeeds = [
 						reminderFrequencyNumber: 0,
 						reminderTime: '00:00:00',
 					},
-				],
 			},
 		],
 	},

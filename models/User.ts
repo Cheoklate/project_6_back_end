@@ -13,11 +13,13 @@ const friendRequestReceivedSchema: Schema = new Schema({
 });
 
 const habitActionSchema: Schema = new Schema({
+	// _id: false,
 	action: String,
 	date: Date,
 });
 
 const habitStreakSchema: Schema = new Schema({
+	// _id: false,
 	totalCompleted: Number,
 	completedCount: Number,
 	streakCount: Number,
@@ -33,13 +35,17 @@ const reminderSchema: Schema = new Schema({
 });
 
 const habitSchema: Schema = new Schema({
-  _id: Schema.Types.ObjectId,
+	_id: Schema.Types.ObjectId,
 	habitName: String,
 	habitDesc: String,
 	isPublic: Boolean,
 	frequencyUnit: String,
 	frequencyNumber: Number,
-	
+	sharedWith:[{ 
+		usersSharedWith_id: {
+			type: Schema.Types.ObjectId,
+			ref: 'User'}
+		}]
 });
 
 const userSchema: Schema = new Schema(
@@ -62,13 +68,15 @@ const userSchema: Schema = new Schema(
 		friendRequestReceived: [friendRequestReceivedSchema],
 		userHabits: [
 			{
-				usersHabits_id: {
+				_id: false,
+				userHabits_id: {
 					type: Schema.Types.ObjectId,
 					ref: 'Habit',
 				},
+				habitName: String,
 				habitAction: [habitActionSchema],
-				habitStreak: [habitStreakSchema],
-				reminders: [reminderSchema],
+				habitStreak: habitStreakSchema,
+				reminders: reminderSchema,
 			},
 		],
 	},
