@@ -87,7 +87,7 @@ const HabitController = {
 			// const results = await User.findOne({"_id": userId}, {"userHabits.userHabits_id": habitId})
 			
 			const results = await User.updateOne({_id: userId, "userHabits.userHabits_id": habitId},
-			{$push: {'userHabits.$.habitAction': {action: "done", date: new Date()}}}
+			{$push: {'userHabits.$.habitAction': {action: action, date: new Date()}}}
 			)
 			console.log('results', results)
 		} catch (err) {
