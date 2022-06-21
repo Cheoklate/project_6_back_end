@@ -86,6 +86,37 @@ const HabitController = {
 			const {userId, habitId, action} = req.body
 			// const results = await User.findOne({"_id": userId}, {"userHabits.userHabits_id": habitId})
 			
+
+			const checkExists = await User.aggregate([
+				{
+					"$match": {
+						"_id": userId,
+						"userHabits.userHabits_id": habitId
+					}
+				}, {
+					"$project": {
+						"userHabits" :{
+							"$first" :{
+								"$filter": {
+									"input" : "$userHabits.userHabits_id",
+									"cond":{
+										"eq": [
+											habitId, 1
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+					{
+   			 "$replaceRoot": {
+      		"newRoot": "$userHabits"
+    			}
+				}
+			])
+
+			console.log(checkExists, 'exist')
 			// const checkExists = await User.find(
 			// 	{_id: userId,  
 			// 	"userHabits.userHabits_id": habitId,
