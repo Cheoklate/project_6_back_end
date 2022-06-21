@@ -1,7 +1,7 @@
 import { Response, Request } from 'express';
 import mongoose from 'mongoose';
 import {Habit, User} from '../models/User';
-
+import moment from 'moment'
 
 const HabitController = {
 	allHabits: async (req: Request, res: Response) => {
@@ -86,11 +86,53 @@ const HabitController = {
 			const {userId, habitId, action} = req.body
 			// const results = await User.findOne({"_id": userId}, {"userHabits.userHabits_id": habitId})
 			
-			const results = await User.updateOne({_id: userId, "userHabits.userHabits_id": habitId},
-			{$push: {'userHabits.$.habitAction': {action: action, date: new Date()}}}
-			)
-			console.log('results', results)
-		} catch (err) {
+
+			const checkExists = await User.aggregate([
+				{
+					"$match": {
+						"_id": userId,
+						"userHabits.userHabits_id": habitId
+					}
+				}, {
+					"$project": {
+						"userHabits" :{
+							"$first" :{
+								"$filter": {
+									"input" : "$userHabits.userHabits_id",
+									"cond":{
+										"eq": [
+											habitId, 1
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+					{
+   			 "$replaceRoot": {
+      		"newRoot": "$userHabits"
+    			}
+				}
+			])
+
+			console.log(checkExists, 'exist')
+			// const checkExists = await User.find(
+			// 	{_id: userId,  
+			// 	"userHabits.userHabits_id": habitId,
+			// 	}, { "habitName" :1,
+			// 	"userHabits.userHabits_id.habitAction":1 }).lean()
+
+			// 	console.log(checkExists, ' check')
+		
+
+
+					// console.log(results, 'check')
+					const results = await User.updateOne({_id: userId, "userHabits.userHabits_id": habitId},
+					{$push: {'userHabits.$.habitAction': {action: action, date: moment(new Date()).format('YYYY-MM-DD')}}}
+					)
+					console.log('results', results)
+				} catch (err) {
 			console.log(err,'err')
 			return res.status(500).json({ message: 'Internal Server Error' , err});
 		}
