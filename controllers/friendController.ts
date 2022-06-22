@@ -24,6 +24,7 @@ const FriendController = {
 			const {
 				userId,
 				userName,
+
 				friendUserName
 			} = req.body;
 			
@@ -79,8 +80,7 @@ const FriendController = {
 		
 		if(sendRequest && receiveRequest)
 			return res.status(201).json(findFriend)
-				
-				
+			
 		} catch (err) {
 			console.log(err,'err')
 			return res.status(500).json({ message: 'Internal Server Error' , err});
