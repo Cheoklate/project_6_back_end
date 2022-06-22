@@ -24,60 +24,81 @@ const FriendController = {
 			const {
 				userId,
 				userName,
-			} = req.body;
 
-			if (!userName)
+				friendUserName
+			} = req.body;
+			
+			if (!friendUserName)
 				return res.status(400).json({ message: 'Missing data' });
 			
-			const findFriend = await User.findOne({userName})
+			const findFriend = await User.findOne({userName: friendUserName}).exec()
 			console.log(findFriend, 'new findFriend')
 
 			// return null if no friend
 			if(!findFriend) 
-				return res.status(201).json({message:'no such user'});
-
-			const checkRequest = await User.findById(userId, 'friendRequestSent userFriends')
+				return res.status(201).json({message: 'no such user'})
 			
-			console.log(checkRequest,'checkreq')
 
-			//check if user is already in friends
-			checkRequest.userFriends.forEach((friend: { userName: string; }) => {
-				if(friend.userName === userName)
-					console.log('already friends')
-					res.status(201).json({message: 'already friends'})
-					return
-			})
-					//check if request had already been sent
-			checkRequest.friendRequestSent.forEach((friend: { userName: string; }) =>{
-				if(friend.userName === userName)
-					console.log('already sent')
-					res.status(201).json({message: 'already sent'})
-					return 
-			})
-				//send friend request
-				const sendRequest = await User.findById(userId, {
-					$push: {
-						friendRequestSent: {
-							_id: findFriend._id,
-							userName: findFriend.userName
-						}
+			const checkIfFriends = await User.findOne({
+				_id: userId,
+				'userFriends.userName': friendUserName},
+				'userFriends.userName'
+			).exec()
+			console.log('alr friends', JSON.stringify(checkIfFriends))
+
+			if(checkIfFriends)
+				return res.status(201).json({message: 'alr friends'})
+
+			const checkIfReqSent = await User.findOne({
+				_id: userId,
+				'friendRequestSent.userName': friendUserName},
+				'friendRequestSent.userName'
+			).exec()
+			console.log('req alr sent', JSON.stringify(checkIfReqSent))
+
+			if(checkIfReqSent)
+				return res.status(201).json({message: 'request alr sent'})
+
+			const sendRequest = await User.findByIdAndUpdate(userId, {
+				$push: {
+					friendRequestSent: {
+						_id: findFriend._id,
+						userName: friendUserName
 					}
-				})
-				//update request received
-				const receiveRequest = await User.findById(findFriend._id,{
-					$push: {
+				}
+			}).exec()
+
+			const receiveRequest = await User.findByIdAndUpdate(findFriend._id,{
+				$push: {
 							friendRequestReceived: {
-								_id: userId
+								_id: userId,
+								userName: userName
 							}
 						}
-				})
+			}).exec()
 				console.log(sendRequest, receiveRequest, 'received')
-				return res.status(201).json(findFriend);	
+		
+		if(sendRequest && receiveRequest)
+			return res.status(201).json(findFriend)
+			
 		} catch (err) {
 			console.log(err,'err')
 			return res.status(500).json({ message: 'Internal Server Error' , err});
 		}
 	},
-	
+		friendRequest: async (req: Request, res: Response) => {
+		try {
+				const {userId} = req.query;
+				const user = await User.findById(userId);
+				const friendRequest = user.friendRequestReceived
+
+				console.log(friendRequest, 'friend request')
+
+			return res.status(200).json(friendRequest);
+		} catch (err){
+			console.log(err, 'err')
+			return res.status(500).json({message: 'Internal Server Error', err})
+		}
+	}
 };
 export default FriendController;
