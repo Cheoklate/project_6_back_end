@@ -24,12 +24,13 @@ const FriendController = {
 			const {
 				userId,
 				userName,
+				friendUserName
 			} = req.body;
 			
-			if (!userName)
+			if (!friendUserName)
 				return res.status(400).json({ message: 'Missing data' });
 			
-			const findFriend = await User.findOne({userName}).exec()
+			const findFriend = await User.findOne({userName: friendUserName}).exec()
 			console.log(findFriend, 'new findFriend')
 
 			// return null if no friend
@@ -39,7 +40,7 @@ const FriendController = {
 
 			const checkIfFriends = await User.findOne({
 				_id: userId,
-				'userFriends.userName': userName},
+				'userFriends.userName': friendUserName},
 				'userFriends.userName'
 			).exec()
 			console.log('alr friends', JSON.stringify(checkIfFriends))
@@ -49,7 +50,7 @@ const FriendController = {
 
 			const checkIfReqSent = await User.findOne({
 				_id: userId,
-				'friendRequestSent.userName': userName},
+				'friendRequestSent.userName': friendUserName},
 				'friendRequestSent.userName'
 			).exec()
 			console.log('req alr sent', JSON.stringify(checkIfReqSent))
@@ -61,7 +62,7 @@ const FriendController = {
 				$push: {
 					friendRequestSent: {
 						_id: findFriend._id,
-						userName: findFriend.userName
+						userName: friendUserName
 					}
 				}
 			}).exec()
@@ -69,7 +70,8 @@ const FriendController = {
 			const receiveRequest = await User.findByIdAndUpdate(findFriend._id,{
 				$push: {
 							friendRequestReceived: {
-								_id: userId
+								_id: userId,
+								userName: userName
 							}
 						}
 			}).exec()
@@ -84,6 +86,19 @@ const FriendController = {
 			return res.status(500).json({ message: 'Internal Server Error' , err});
 		}
 	},
-	
+		friendRequest: async (req: Request, res: Response) => {
+		try {
+				const {userId} = req.query;
+				const user = await User.findById(userId);
+				const friendRequest = user.friendRequestReceived
+
+				console.log(friendRequest, 'friend request')
+
+			return res.status(200).json(friendRequest);
+		} catch (err){
+			console.log(err, 'err')
+			return res.status(500).json({message: 'Internal Server Error', err})
+		}
+	}
 };
 export default FriendController;
