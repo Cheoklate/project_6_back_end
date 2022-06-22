@@ -18,64 +18,62 @@ const FriendController = {
 			return res.status(500).json({ message: 'Internal Server Error' });
 		}
 	},
-		createHabit: async (req: Request, res: Response) => {
+		addFriend: async (req: Request, res: Response) => {
 			console.log(req.body, 'request')
 		try {
 			const {
 				userId,
-				habitName,
-				habitDesc,
-				isPublic,
-				frequencyUnit,
-				frequencyNumber,
-				reminderFrequencyUnit, 
-				reminderFrequencyNumber, 
-				reminderTime,
-				reminderMethod, 
-				reminderMethodContact
+				userName,
 			} = req.body;
 
-			if (!habitName || !habitDesc || !frequencyUnit
-				)
+			if (!userName)
 				return res.status(400).json({ message: 'Missing data' });
 			
-			const newHabit = await new Habit({
-				_id: new mongoose.Types.ObjectId(),
-				habitName,
-				habitDesc,
-				isPublic,
-				frequencyUnit,
-				frequencyNumber,
-				sharedWith:[{userId}]
-			}).save()
+			const findFriend = await User.findOne({userName})
+			console.log(findFriend, 'new findFriend')
 
-			console.log(newHabit._id, 'new habit')
+			// return null if no friend
+			if(!findFriend) 
+				return res.status(201).json({message:'no such user'});
 
-			const assignUserHabit = await User.findByIdAndUpdate(userId, {$push: {
-							userHabits: {
-								userHabits_id: newHabit._id,
-								habitName,
-								reminders:{
-									reminderMethod, 
-									reminderMethodContact,
-									reminderFrequencyUnit,
-									reminderFrequencyNumber,
-									reminderTime
-									},
-								habitAction: [],
-								habitStreak:{
-										totalCompleted: 0,
-										completedCount: 0,
-										streakCount: 0,
-										numberSkips: 0,
-								}
-				}}})
-				
-				console.log( 'assign user habit')
+			const checkRequest = await User.findById(userId, 'friendRequestSent userFriends')
 			
-			return res.status(201).json(assignUserHabit);
-		} catch (err) {
+			console.log(checkRequest,'checkreq')
 
+			//check if user is already in friends
+			checkRequest.userFriends.forEach((friend: { userName: string; }) => {
+				if(friend.userName === userName)
+					console.log('already friends')
+					res.status(201).json({message: 'already friends'})
+					return
+			})
+					//check if request had already been sent
+			checkRequest.friendRequestSent.forEach((friend: { userName: string; }) =>{
+				if(friend.userName === userName)
+					console.log('already sent')
+					res.status(201).json({message: 'already sent'})
+					return 
+			})
+				//send friend request
+				const sendRequest = await User.findById(userId, {
+					$push: {
+						friendRequestSent: {
+							_id: findFriend._id,
+							userName: findFriend.userName
+						}
+					}
+				})
+				//update request received
+				const receiveRequest = await User.findById(findFriend._id,{
+					$push: {
+							friendRequestReceived: {
+								_id: userId
+							}
+						}
+				})
+				console.log(sendRequest, receiveRequest, 'received')
+				return res.status(201).json(findFriend);	
+		} catch (err) {
 			console.log(err,'err')
 			return res.status(500).json({ message: 'Internal Server Error' , err});
 		}
