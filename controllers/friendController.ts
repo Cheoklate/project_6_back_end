@@ -24,7 +24,6 @@ const FriendController = {
 			const {
 				userId,
 				userName,
-
 				friendUserName
 			} = req.body;
 			
@@ -80,7 +79,8 @@ const FriendController = {
 		
 		if(sendRequest && receiveRequest)
 			return res.status(201).json(findFriend)
-			
+				
+				
 		} catch (err) {
 			console.log(err,'err')
 			return res.status(500).json({ message: 'Internal Server Error' , err});
@@ -95,6 +95,17 @@ const FriendController = {
 				console.log(friendRequest, 'friend request')
 
 			return res.status(200).json(friendRequest);
+		} catch (err){
+			console.log(err, 'err')
+			return res.status(500).json({message: 'Internal Server Error', err})
+		}
+	},
+
+	acceptRequest: async (req: Request, res: Response) => {
+		try {
+			const {
+				userId, friendUsername, friendUserId
+			} = req.body
 		} catch (err){
 			console.log(err, 'err')
 			return res.status(500).json({message: 'Internal Server Error', err})

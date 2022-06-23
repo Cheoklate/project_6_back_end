@@ -133,6 +133,14 @@ const HabitController = {
 				);
 				console.log('new Action', newAction);
 			}
+// update streak count p1
+			if (action === 'done') {
+				console.log(habitId, 'habitid')
+				const updateStreak = await User.findOneAndUpdate({ _id: userId, 'userHabits.userHabits_id': habitId },
+				{$inc: {'userHabits.$.habitStreak.totalCompleted' :1}}).exec()
+				console.log(JSON.stringify(updateStreak), 'updatestreak')
+				
+			}
 		} catch (err) {
 			console.log(err, 'err');
 			return res.status(500).json({ message: 'Internal Server Error', err });
