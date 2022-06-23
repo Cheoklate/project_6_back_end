@@ -20,10 +20,10 @@ const habitActionSchema: Schema = new Schema({
 
 const habitStreakSchema: Schema = new Schema({
 	// _id: false,
-	totalCompleted: Number,
+	totalExpectedCount: Number,
 	completedCount: Number,
 	streakCount: Number,
-	numberSkips: Number,
+	achievementRate: Number
 });
 
 const reminderSchema: Schema = new Schema({
@@ -73,6 +73,7 @@ const userSchema: Schema = new Schema(
 					type: Schema.Types.ObjectId,
 					ref: 'Habit',
 				},
+				habitStartDate : Date,
 				habitName: String,
 				habitAction: [habitActionSchema],
 				habitStreak: habitStreakSchema,
