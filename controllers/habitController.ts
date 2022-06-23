@@ -54,6 +54,7 @@ const HabitController = {
 					userHabits: {
 						userHabits_id: newHabit._id,
 						habitName,
+						habitStartDate: moment(moment(new Date()).format("YYYY-MM-DD")),
 						reminders: {
 							reminderMethod,
 							reminderMethodContact,
@@ -63,10 +64,11 @@ const HabitController = {
 						},
 						habitAction: [],
 						habitStreak: {
-							totalCompleted: 0,
+							totalExpectedCount: frequencyNumber,
 							completedCount: 0,
 							streakCount: 0,
-							numberSkips: 0,
+							achievementRate: 0,
+							lastUpdated: moment(moment(new Date()).format("YYYY-MM-DD"))
 						},
 					},
 				},
@@ -84,10 +86,10 @@ const HabitController = {
 		console.log(req.body, 'request');
 		try {
 			const { userId, habitId, action } = req.body;
-			const results = await User.findOne(
-				{ _id: userId },
-				{ 'userHabits.userHabits_id': habitId }
-			);
+			// const results = await User.findOne(
+			// 	{ _id: userId },
+			// 	{ 'userHabits.userHabits_id': habitId }
+			// );
 			const checkIfExists = await User.findOne(
 				{
 					_id: userId,
@@ -96,11 +98,14 @@ const HabitController = {
 						'YYYY-MM-DD'
 					),
 				},
-				'userHabits.habitAction.date'
+				'userHabits.habitAction.date userHabits.habitStreak'
 			).exec();
 			console.log('exists', JSON.stringify(checkIfExists));
-
+			let habitStreakDetails;
 			if (checkIfExists) {
+				habitStreakDetails = JSON.parse(JSON.stringify(checkIfExists)).userHabits[0].habitStreak
+				console.log(habitStreakDetails,'habit')
+
 				await User.updateOne(
 					{
 						_id: userId,
@@ -135,9 +140,16 @@ const HabitController = {
 			}
 // update streak count p1
 			if (action === 'done') {
-				console.log(habitId, 'habitid')
+
+				const achievementRate = (habitStreakDetails.completedCount + 1)/ habitStreakDetails.totalExpectedCount
+				
+				console.log(achievementRate, habitStreakDetails.completedCount,habitStreakDetails.totalExpectedCount, 'achievement rate')
+
 				const updateStreak = await User.findOneAndUpdate({ _id: userId, 'userHabits.userHabits_id': habitId },
-				{$inc: {'userHabits.$.habitStreak.totalCompleted' :1}}).exec()
+				{$inc: {'userHabits.$.habitStreak.completedCount' :1},
+				$set: {
+					'userHabits.$.habitStreak.achievementRate': achievementRate
+				}}).exec()
 				console.log(JSON.stringify(updateStreak), 'updatestreak')
 				
 			}
@@ -146,6 +158,21 @@ const HabitController = {
 			return res.status(500).json({ message: 'Internal Server Error', err });
 		}
 	},
+	viewHabit: async (req: Request, res: Response) => {
+		console.log(req.query, 'request');
+		try{
+			const {userId, habitId} = req.query;
+			if (!habitId || !userId )
+				return res.status(400).json({ message: 'Missing data' });
+				
+			const viewHabitDetails = await User.findOne({_id:userId, 'userHabits.userHabits_id': habitId},'userHabits')
+
+			console.log(viewHabitDetails, 'viewhabitdetails')
+			return res.status(201).json(viewHabitDetails)
+		}catch (err){
+			console.log(err,'err')
+		}
+	}
 };
 
 export default HabitController;

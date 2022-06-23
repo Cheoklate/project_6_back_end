@@ -1,4 +1,10 @@
 import { model, Schema } from 'mongoose';
+const decimalField = {
+  default: 0,
+  required: true,
+  type: Schema.Types.Decimal128,
+  // get: (v: Schema.Types.Decimal128) => v.toString(),
+};
 
 const friendSchema: Schema = new Schema({
 	userName: String,
@@ -23,7 +29,8 @@ const habitStreakSchema: Schema = new Schema({
 	totalExpectedCount: Number,
 	completedCount: Number,
 	streakCount: Number,
-	achievementRate: Number
+	achievementRate: {type: Schema.Types.Decimal128},
+	lastUpdated: Date,
 });
 
 const reminderSchema: Schema = new Schema({

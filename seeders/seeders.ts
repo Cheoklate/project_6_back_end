@@ -48,6 +48,7 @@ const userSeeds = [
 						completedCount: 0,
 						streakCount: 2,
 						achievementRate: 0,
+						lastUpdated: new Date('2022-06-20T00:00:00.000Z'),
 					},
 				reminders: 
 					{
