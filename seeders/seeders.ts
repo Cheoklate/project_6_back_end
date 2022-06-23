@@ -15,7 +15,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/project6', () => {
 const habitSeeds = [
 		{
 			_id: '62aae3416434f773dcfa9bd4',
-			habitName: 'test habit',
+			habitName: 'Eat veg',
 			habitDesc: '123',
 			isPublic: true,
 			frequencyUnit: 'daily',
@@ -35,16 +35,19 @@ const userSeeds = [
 		userHabits: [
 			{
 				userHabits_id: { _id: '62aae3416434f773dcfa9bd4' },
-				habitName: 'test habit',
+				habitName: 'Eat veg',
+				habitStartDate: new Date('2022-06-20T14:56:59.301Z'),
 				habitAction: [
-					{ action: 'Done', date: new Date('2014-01-22T14:56:59.301Z') },
+					{ action: 'Done', date: new Date('2022-06-21T14:56:59.301Z') },
+					{ action: 'Done', date: new Date('2022-06-22T14:56:59.301Z') },
+					
 				],
 				habitStreak: 
 					{
-						totalCompleted: 1,
-						completedCount: 2,
-						streakCount: 1,
-						numberSkips: 0,
+						totalExpectedCount: 1,
+						completedCount: 0,
+						streakCount: 2,
+						achievementRate: 0,
 					},
 				reminders: 
 					{
