@@ -2,6 +2,7 @@ import e, { Response, Request } from 'express';
 import mongoose from 'mongoose';
 import { Habit, User } from '../models/User';
 import moment from 'moment';
+import resetStreakData from './test';
 
 const HabitController = {
 	allHabits: async (req: Request, res: Response) => {
@@ -86,10 +87,7 @@ const HabitController = {
 		console.log(req.body, 'request');
 		try {
 			const { userId, habitId, action } = req.body;
-			// const results = await User.findOne(
-			// 	{ _id: userId },
-			// 	{ 'userHabits.userHabits_id': habitId }
-			// );
+		// check if action already exists
 			const checkIfExists = await User.findOne(
 				{
 					_id: userId,
@@ -101,10 +99,11 @@ const HabitController = {
 				'userHabits.habitAction.date userHabits.habitStreak'
 			).exec();
 			console.log('exists', JSON.stringify(checkIfExists));
-			let habitStreakDetails;
+			
 			if (checkIfExists) {
-				habitStreakDetails = JSON.parse(JSON.stringify(checkIfExists)).userHabits[0].habitStreak
-				console.log(habitStreakDetails,'habit')
+				// habitDetails = JSON.parse(JSON.stringify(checkIfExists)).userHabits[0]
+				// habitStreakDetails = JSON.parse(JSON.stringify(checkIfExists)).userHabits[0].habitStreak
+				// console.log(habitDetails,'habit')
 
 				await User.updateOne(
 					{
@@ -138,21 +137,48 @@ const HabitController = {
 				);
 				console.log('new Action', newAction);
 			}
-// update streak count p1
-			if (action === 'done') {
+			// set streak Info
+			const getHabitFrequency =  await Habit.findById(habitId,'frequencyUnit')
+			const frequencyUnit = JSON.parse(JSON.stringify(getHabitFrequency)).frequencyUnit
 
-				const achievementRate = (habitStreakDetails.completedCount + 1)/ habitStreakDetails.totalExpectedCount
-				
-				console.log(achievementRate, habitStreakDetails.completedCount,habitStreakDetails.totalExpectedCount, 'achievement rate')
+			console.log(frequencyUnit, 'habit frequency')
+			const getHabitDetails = User.findOne({_id: userId},
+				{	
+					userHabits:{
+						$elemMatch:{
+							userHabits_id:habitId
+						}
+					}
+			}).then((res)=>{
+				console.log('getHabitDetails', JSON.parse(JSON.stringify(res)).userHabits[0]);
 
-				const updateStreak = await User.findOneAndUpdate({ _id: userId, 'userHabits.userHabits_id': habitId },
-				{$inc: {'userHabits.$.habitStreak.completedCount' :1},
-				$set: {
-					'userHabits.$.habitStreak.achievementRate': achievementRate
-				}}).exec()
-				console.log(JSON.stringify(updateStreak), 'updatestreak')
+				let habitDetails = JSON.parse(JSON.stringify(res)).userHabits[0]
+
+				if(action==='done'){
+					habitDetails.habitStreak.completedCount += 1
+					habitDetails.habitStreak.achievementRate = habitDetails.habitStreak.completedCount / habitDetails.habitStreak.totalExpectedCount
+				}
+				console.log(habitDetails, 'before')
+				resetStreakData(frequencyUnit, habitDetails)
+				console.log(habitDetails, 'after')
+			})
+			
+
+// // update streak count p1
+// 			if (action === 'done') {
+
+// 				const achievementRate = (habitStreakDetails.completedCount + 1)/ habitStreakDetails.totalExpectedCount
 				
-			}
+// 				console.log(achievementRate, habitStreakDetails.completedCount,habitStreakDetails.totalExpectedCount, 'achievement rate')
+
+// 				const updateStreak = await User.findOneAndUpdate({ _id: userId, 'userHabits.userHabits_id': habitId },
+// 				{$inc: {'userHabits.$.habitStreak.completedCount' :1},
+// 				$set: {
+// 					'userHabits.$.habitStreak.achievementRate': achievementRate
+// 				}}).exec()
+// 				console.log(JSON.stringify(updateStreak), 'updatestreak')
+				
+// 			}
 		} catch (err) {
 			console.log(err, 'err');
 			return res.status(500).json({ message: 'Internal Server Error', err });

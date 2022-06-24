@@ -8,23 +8,23 @@ import moment from 'moment'
 //  - else, streakCount = 0
 //- achievementRate = 0
 //- completedCount = 0
-const habitObject = {
-    userHabits_id: "62aae3416434f773dcfa9bd4",
-    habitStartDate: "2022-06-22",
-    habitName: 'Eat veg',
-    habitAction: [ [Object], [Object] ],
-    habitStreak: {
-      totalExpectedCount: 1,
-      completedCount: 0,
-      streakCount: 2,
-      achievementRate: 2,
-      _id: "62b3dad4325a62053ea52eb0",
-      lastUpdated: "2022-06-22",
-      //lastUpdated: "2022-06-22T14:56:59.301Z",
-    }
-  }
+// const habitObject = {
+//     userHabits_id: "62aae3416434f773dcfa9bd4",
+//     habitStartDate: "2022-06-22",
+//     habitName: 'Eat veg',
+//     habitAction: [ [Object], [Object] ],
+//     habitStreak: {
+//       totalExpectedCount: 1,
+//       completedCount: 0,
+//       streakCount: 2,
+//       achievementRate: 2,
+//       _id: "62b3dad4325a62053ea52eb0",
+//       lastUpdated: "2022-06-22",
+//       //lastUpdated: "2022-06-22T14:56:59.301Z",
+//     }
+//   }
 
-const frequencyUnit =  "monthly"
+// const frequencyUnit =  "monthly"
 // {
 //   "_id": {
 //     "$oid": "62aae3416434f773dcfa9bd4"
@@ -37,7 +37,7 @@ const frequencyUnit =  "monthly"
 // }
 
 
-function resetStreakData( frequencyUnit:string, habitObject:any) {
+export default function resetStreakData( frequencyUnit:string, habitObject:any) {
 
   const prevDate = moment(habitObject.habitStreak.lastUpdated)
   const curDate = moment(moment(new Date()).format("YYYY-MM-DD"))
@@ -52,11 +52,23 @@ function resetStreakData( frequencyUnit:string, habitObject:any) {
     } else {
       habitObject.habitStreak.streakCount = 0
     }
+    habitObject.habitStreak.completedCount = 0
+    habitObject.habitStreak.achievementRate = 0
+    habitObject.habitStreak.lastUpdated = curDate
   } 
-  habitObject.habitStreak.completedCount = 0
-  habitObject.habitStreak.achievementRate = 0
-  habitObject.habitStreak.lastUpdated = curDate
-  console.log(habitObject)
+
+  if (frequencyUnit === "daily") {
+    if( diff === 0 && habitObject.habitStreak.achievementRate >= 1){
+      habitObject.habitStreak.streakCount += 1
+    } else {
+      habitObject.habitStreak.streakCount = 0
+    }
+    habitObject.habitStreak.completedCount = 0
+    habitObject.habitStreak.achievementRate = 0
+    habitObject.habitStreak.lastUpdated = curDate
+  }
+
+  
 }
 
-resetStreakData(frequencyUnit,habitObject)
+// resetStreakData(frequencyUnit,habitObject)
