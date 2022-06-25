@@ -26,8 +26,8 @@ const UserController = {
 				
 				return res.status(200).json({
 					_id: user._id,
-					username: user.username,
-				email: user.email,
+					userName: user.userName,
+					email: user.email,
 			});
 		} catch (err) {
 			return res.status(500).json({ message: 'Internal Server Error' });

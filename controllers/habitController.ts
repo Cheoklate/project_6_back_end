@@ -165,7 +165,7 @@ const HabitController = {
 
 				
 				habitDetails.habitStreak.achievementRate = habitDetails.habitStreak.completedCount / habitDetails.habitStreak.totalExpectedCount
-				
+
 				console.log(habitDetails, 'before')
 				const habitObjectData = resetStreakData(frequencyUnit, habitDetails, action)
 				console.log(habitObjectData, 'habitobjdatabef')
@@ -175,18 +175,6 @@ const HabitController = {
 				
 					console.log(habitObjectData, 'habitobjdata')
 
-				// User.updateOne({
-				// 	_id: userId,
-				// 	'userHabits.userHabits_id':habitId
-				// },{
-				// 	$set:{
-				// 		'userHabits.habitName': 'DRINKWATER',
-				// 		'userHabits.habitStreak.completedCount': habitObjectData.habitStreak.completedCount,
-				// 		'userHabits.habitStreak.streakCount': 5,
-				// 		'userHabits.habitStreak.achievementRate': habitObjectData.habitStreak.achievementRate,
-				// 		'userHabits.habitStreak.lastUpdated': habitObjectData.habitStreak.lastUpdated,
-
-				// 	}})
 					console.log(habitId, userId, typeof(habitId), typeof(userId))
 					
 					User.findOneAndUpdate({
@@ -221,7 +209,14 @@ const HabitController = {
 			if (!habitId || !userId )
 				return res.status(400).json({ message: 'Missing data' });
 				
-			const viewHabitDetails = await User.findOne({_id:userId, 'userHabits.userHabits_id': habitId},'userHabits')
+			const viewHabitDetails = await User.findOne({_id: userId},
+				{	
+					userHabits:{
+						$elemMatch:{
+							userHabits_id:habitId
+						}
+					}
+			}).exec()
 
 			console.log(viewHabitDetails, 'viewhabitdetails')
 			return res.status(201).json(viewHabitDetails)
