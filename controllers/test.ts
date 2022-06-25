@@ -37,7 +37,7 @@ import moment from 'moment'
 // }
 
 
-export default function resetStreakData( frequencyUnit:string, habitObject:any) {
+export default async function resetStreakData( frequencyUnit:string, habitObject:any, action:string) {
 
   const prevDate = moment(habitObject.habitStreak.lastUpdated)
   const curDate = moment(moment(new Date()).format("YYYY-MM-DD"))
@@ -45,30 +45,24 @@ export default function resetStreakData( frequencyUnit:string, habitObject:any) 
 
   console.log(prevDate, curDate, diff)
 
-  if ((frequencyUnit === "weekly" && diff >=6 ) || (frequencyUnit === "monthly" && diff >=29)) {
+  
+
+    
+  if ((frequencyUnit === "daily" && diff === 1) || (frequencyUnit === "weekly" && diff >=6 ) || (frequencyUnit === "monthly" && diff >=29)) {
     if(habitObject.habitStreak.achievementRate >= 1) {
       console.log('reset')
       habitObject.habitStreak.streakCount += 1
     } else {
       habitObject.habitStreak.streakCount = 0
     }
-    habitObject.habitStreak.completedCount = 0
-    habitObject.habitStreak.achievementRate = 0
+    if(action === 'done'){
+      habitObject.habitStreak.completedCount = 1
+    } else {
+      habitObject.habitStreak.completedCount = 0
+    }
+    habitObject.habitStreak.achievementRate = habitObject.habitStreak.completedCount/habitObject.habitStreak.totalExpectedCount
     habitObject.habitStreak.lastUpdated = curDate
   } 
-
-  if (frequencyUnit === "daily") {
-    if( diff === 0 && habitObject.habitStreak.achievementRate >= 1){
-      habitObject.habitStreak.streakCount += 1
-    } else {
-      habitObject.habitStreak.streakCount = 0
-    }
-    habitObject.habitStreak.completedCount = 0
-    habitObject.habitStreak.achievementRate = 0
-    habitObject.habitStreak.lastUpdated = curDate
-  }
-
-  
+  return habitObject  
 }
 
-// resetStreakData(frequencyUnit,habitObject)

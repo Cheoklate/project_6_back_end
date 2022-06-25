@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Habit, User } from '../models/User';
 import moment from 'moment';
 import resetStreakData from './test';
+import { json } from 'stream/consumers';
 
 const HabitController = {
 	allHabits: async (req: Request, res: Response) => {
@@ -55,6 +56,9 @@ const HabitController = {
 					userHabits: {
 						userHabits_id: newHabit._id,
 						habitName,
+						frequencyNumber,
+						frequencyUnit,
+						isPublic,
 						habitStartDate: moment(moment(new Date()).format("YYYY-MM-DD")),
 						reminders: {
 							reminderMethod,
@@ -101,10 +105,12 @@ const HabitController = {
 			console.log('exists', JSON.stringify(checkIfExists));
 			
 			if (checkIfExists) {
-				// habitDetails = JSON.parse(JSON.stringify(checkIfExists)).userHabits[0]
-				// habitStreakDetails = JSON.parse(JSON.stringify(checkIfExists)).userHabits[0].habitStreak
-				// console.log(habitDetails,'habit')
-
+				let increment
+				if(action === 'done') {
+					 increment = 1
+				} else {
+					increment = 0
+				}
 				await User.updateOne(
 					{
 						_id: userId,
@@ -120,9 +126,12 @@ const HabitController = {
 								date: moment(new Date()).format('YYYY-MM-DD'),
 							},
 						},
+						$inc: {
+							'userHabits.$.habitStreak.completedCount': increment
+						}
 					}
 				);
-				console.log('updated current days field');
+				console.log('updated current days field', increment);
 			} else {
 				const newAction = await User.updateOne(
 					{ _id: userId, 'userHabits.userHabits_id': habitId },
@@ -142,7 +151,7 @@ const HabitController = {
 			const frequencyUnit = JSON.parse(JSON.stringify(getHabitFrequency)).frequencyUnit
 
 			console.log(frequencyUnit, 'habit frequency')
-			const getHabitDetails = User.findOne({_id: userId},
+			const getHabitDetails = await User.findOne({_id: userId},
 				{	
 					userHabits:{
 						$elemMatch:{
@@ -154,31 +163,52 @@ const HabitController = {
 
 				let habitDetails = JSON.parse(JSON.stringify(res)).userHabits[0]
 
-				if(action==='done'){
-					habitDetails.habitStreak.completedCount += 1
-					habitDetails.habitStreak.achievementRate = habitDetails.habitStreak.completedCount / habitDetails.habitStreak.totalExpectedCount
-				}
+				
+				habitDetails.habitStreak.achievementRate = habitDetails.habitStreak.completedCount / habitDetails.habitStreak.totalExpectedCount
+				
 				console.log(habitDetails, 'before')
-				resetStreakData(frequencyUnit, habitDetails)
-				console.log(habitDetails, 'after')
-			})
+				const habitObjectData = resetStreakData(frequencyUnit, habitDetails, action)
+				console.log(habitObjectData, 'habitobjdatabef')
+				return habitObjectData
+					
+				}).then((habitObjectData)=>{
+				
+					console.log(habitObjectData, 'habitobjdata')
+
+				// User.updateOne({
+				// 	_id: userId,
+				// 	'userHabits.userHabits_id':habitId
+				// },{
+				// 	$set:{
+				// 		'userHabits.habitName': 'DRINKWATER',
+				// 		'userHabits.habitStreak.completedCount': habitObjectData.habitStreak.completedCount,
+				// 		'userHabits.habitStreak.streakCount': 5,
+				// 		'userHabits.habitStreak.achievementRate': habitObjectData.habitStreak.achievementRate,
+				// 		'userHabits.habitStreak.lastUpdated': habitObjectData.habitStreak.lastUpdated,
+
+				// 	}})
+					console.log(habitId, userId, typeof(habitId), typeof(userId))
+					
+					User.findOneAndUpdate({
+					_id: userId,
+					'userHabits.userHabits_id':habitId
+					},{
+					$set:{
+						'userHabits.$.habitStreak.completedCount': habitObjectData.habitStreak.completedCount,
+						'userHabits.$.habitStreak.streakCount': habitObjectData.habitStreak.streakCount,
+						'userHabits.$.habitStreak.achievementRate': habitObjectData.habitStreak.achievementRate,
+						'userHabits.$.habitStreak.lastUpdated': habitObjectData.habitStreak.lastUpdated,
+					}}).exec((err, res)=> {
+						if (err) return console.log(err,'err')
+						console.log('updatehabitdetails',res)})
+
+				})
+				
+
+				
 			
-
-// // update streak count p1
-// 			if (action === 'done') {
-
-// 				const achievementRate = (habitStreakDetails.completedCount + 1)/ habitStreakDetails.totalExpectedCount
-				
-// 				console.log(achievementRate, habitStreakDetails.completedCount,habitStreakDetails.totalExpectedCount, 'achievement rate')
-
-// 				const updateStreak = await User.findOneAndUpdate({ _id: userId, 'userHabits.userHabits_id': habitId },
-// 				{$inc: {'userHabits.$.habitStreak.completedCount' :1},
-// 				$set: {
-// 					'userHabits.$.habitStreak.achievementRate': achievementRate
-// 				}}).exec()
-// 				console.log(JSON.stringify(updateStreak), 'updatestreak')
-				
-// 			}
+			
+		
 		} catch (err) {
 			console.log(err, 'err');
 			return res.status(500).json({ message: 'Internal Server Error', err });
