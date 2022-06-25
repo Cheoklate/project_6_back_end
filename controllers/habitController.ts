@@ -133,6 +133,7 @@ const HabitController = {
 				);
 				console.log('updated current days field', increment);
 			} else {
+				console.log('does not exist')
 				const newAction = await User.updateOne(
 					{ _id: userId, 'userHabits.userHabits_id': habitId },
 					{
