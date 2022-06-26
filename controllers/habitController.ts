@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { Habit, User } from '../models/User';
 import moment from 'moment';
 import resetStreakData from './test';
-import { json } from 'stream/consumers';
+import { arrayBuffer, json } from 'stream/consumers';
 
 const HabitController = {
 	allHabits: async (req: Request, res: Response) => {
@@ -92,17 +92,12 @@ const HabitController = {
 		try {
 			const { userId, habitId, action, actionDate } = req.body;
 		// check if action already exists
-			const checkIfExists = await User.findOne(
-				{
-					_id: userId,
-					'userHabits.userHabits_id': habitId,
-					'userHabits.habitAction.date': moment(actionDate).format(
-						'YYYY-MM-DD'
-					),
-				},
-				'userHabits.habitAction.date userHabits.habitStreak'
+			const checkIfExists = await User.findOne({_id: userId, 'userHabits.userHabits_id': habitId,
+			'userHabits.habitAction.date':moment(actionDate).format(
+						'YYYY-MM-DD')
+			}, 'userHabits.habitAction.date'
 			).exec();
-			console.log('exists', JSON.stringify(checkIfExists));
+			console.log('exists', JSON.stringify(checkIfExists), checkIfExists === null);
 			
 			if (checkIfExists) {
 				let increment
@@ -112,25 +107,20 @@ const HabitController = {
 					increment = 0
 				}
 				await User.updateOne(
-					{
-						_id: userId,
-						'userHabits.userHabits_id': habitId,
-						'userHabits.habitAction.date': moment(actionDate).format(
-							'YYYY-MM-DD'
-						),
-					},
+					{_id: userId, 'userHabits.userHabits_id': habitId,
+			'userHabits.habitAction.date':moment(actionDate).format(
+						'YYYY-MM-DD')
+			},
 					{
 						$set: {
-							'userHabits.$.habitAction': {
-								action: action,
-								date: moment(actionDate).format('YYYY-MM-DD'),
-							},
-						},
+							'userHabits.$.habitAction.$[update].action': action,
+							// 'userHabits.$.habitAction.0.date':moment(actionDate).format('YYYY-MM-DD'),
+						}	,
 						$inc: {
 							'userHabits.$.habitStreak.completedCount': increment
 						}
-					}
-				);
+					}, {arrayFilters: [{'update.date': moment(actionDate).format('YYYY-MM-DD')}]}
+				).exec();
 				console.log('updated current days field', increment);
 			} else {
 				console.log('does not exist')
@@ -189,11 +179,13 @@ const HabitController = {
 						'userHabits.$.habitStreak.lastUpdated': habitObjectData.habitStreak.lastUpdated,
 					}}).exec((err, res)=> {
 						if (err) return console.log(err,'err')
-						console.log('updatehabitdetails',res)})
-
+						console.log('updatehabitdetails',res)
+						
+					})
+					return res.status(201).json({message:'done'});
 				})
 				
-
+			
 				
 			
 			
@@ -219,7 +211,7 @@ const HabitController = {
 					}
 			}).exec()
 
-			console.log(viewHabitDetails, 'viewhabitdetails')
+			// console.log(viewHabitDetails, 'viewhabitdetails')
 			return res.status(201).json(viewHabitDetails)
 		}catch (err){
 			console.log(err,'err')

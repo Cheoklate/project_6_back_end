@@ -41,8 +41,8 @@ const userSeeds = [
 				frequencyUnit: 'daily',
 				frequencyNumber: 1,
 				habitAction: [
-					{ action: 'Done', date: new Date('2022-06-21T14:56:59.301Z') },
-					{ action: 'Done', date: new Date('2022-06-22T14:56:59.301Z') },
+					{ action: 'done', date: new Date('2022-06-21T00:00:00.000Z') },
+					{ action: 'done', date: new Date('2022-06-22T00:00:00.000Z') },
 					
 				],
 				habitStreak: 
