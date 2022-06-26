@@ -90,13 +90,13 @@ const HabitController = {
 	updateHabit: async (req: Request, res: Response) => {
 		console.log(req.body, 'request');
 		try {
-			const { userId, habitId, action } = req.body;
+			const { userId, habitId, action, actionDate } = req.body;
 		// check if action already exists
 			const checkIfExists = await User.findOne(
 				{
 					_id: userId,
 					'userHabits.userHabits_id': habitId,
-					'userHabits.habitAction.date': moment(new Date()).format(
+					'userHabits.habitAction.date': moment(actionDate).format(
 						'YYYY-MM-DD'
 					),
 				},
@@ -115,7 +115,7 @@ const HabitController = {
 					{
 						_id: userId,
 						'userHabits.userHabits_id': habitId,
-						'userHabits.habitAction.date': moment(new Date()).format(
+						'userHabits.habitAction.date': moment(actionDate).format(
 							'YYYY-MM-DD'
 						),
 					},
@@ -123,7 +123,7 @@ const HabitController = {
 						$set: {
 							'userHabits.$.habitAction': {
 								action: action,
-								date: moment(new Date()).format('YYYY-MM-DD'),
+								date: moment(actionDate).format('YYYY-MM-DD'),
 							},
 						},
 						$inc: {
@@ -140,7 +140,7 @@ const HabitController = {
 						$push: {
 							'userHabits.$.habitAction': {
 								action: action,
-								date: moment(new Date()).format('YYYY-MM-DD'),
+								date: moment(actionDate).format('YYYY-MM-DD'),
 							},
 						},
 					}
