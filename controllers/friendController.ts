@@ -86,7 +86,57 @@ const FriendController = {
 			return res.status(500).json({ message: 'Internal Server Error' , err});
 		}
 	},
-		friendRequest: async (req: Request, res: Response) => {
+		requestAction: async (req: Request, res: Response) => {
+			console.log(req.body, 'request')
+		try {
+				const {userId, userName, friendUserId, friendUserName, action} = req.body;
+
+				const user = await User.findOneAndUpdate({_id:userId},
+					{
+						$pull:{
+							friendRequestReceived:{userName: friendUserName}
+							}
+						}
+					).exec()
+
+				console.log(JSON.stringify(user), 'user')
+				const friend = await User.findOneAndUpdate({_id:friendUserId},
+					{
+						$pull:{
+							friendRequestSent:{
+								userName: userName
+							}
+						}
+					}).exec()
+				console.log(user, friend, 'removed')
+
+				if(action === 'accept') {
+					const addFriendtoUser = await User.findByIdAndUpdate(userId,{
+						$push:{
+							userFriends:{
+								userName: friendUserName
+							}
+						}
+					}).exec()
+
+					const addUsertoFriend= await User.findByIdAndUpdate(friendUserId,{
+						$push:{
+							userFriends:{
+								userName: userName
+							}
+						}
+					}).exec()
+					console.log(addFriendtoUser, addUsertoFriend, 'added')
+				}
+
+			return res.status(200).json({message: 'done'});
+		} catch (err){
+			console.log(err, 'err')
+			return res.status(500).json({message: 'Internal Server Error', err})
+		}
+	},
+
+	friendRequest: async (req: Request, res: Response) => {
 		try {
 				const {userId} = req.query;
 				const user = await User.findById(userId);
@@ -100,16 +150,5 @@ const FriendController = {
 			return res.status(500).json({message: 'Internal Server Error', err})
 		}
 	},
-
-	acceptRequest: async (req: Request, res: Response) => {
-		try {
-			const {
-				userId, friendUsername, friendUserId
-			} = req.body
-		} catch (err){
-			console.log(err, 'err')
-			return res.status(500).json({message: 'Internal Server Error', err})
-		}
-	}
 };
 export default FriendController;
