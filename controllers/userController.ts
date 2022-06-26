@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { Response, Request } from 'express';
 import {User} from '../models/User';
 import bcryptConfig from '../config/bcrypt';
+import mongoose from 'mongoose';
 
 
 const UserController = {
@@ -26,8 +27,8 @@ const UserController = {
 				
 				return res.status(200).json({
 					_id: user._id,
-					username: user.username,
-				email: user.email,
+					userName: user.userName,
+					email: user.email,
 			});
 		} catch (err) {
 			return res.status(500).json({ message: 'Internal Server Error' });
@@ -45,27 +46,32 @@ const UserController = {
 				password: passwordBody,
 				userFriends,
 			} = req.body;
-
+			console.log(req.body, 'signup req')
 			if (!firstName || !lastName || !userName || !email || !passwordBody)
 				return res.status(400).json({ message: 'Missing data' });
 
 			const isUserExists = await User.findOne({ email }).exec();
 
+			console.log(isUserExists, ' userExists?')
 			if (isUserExists)
 				return res.status(401).json({ message: 'User Already Exists' });
 
 			const password = await bcrypt.hash(passwordBody, bcryptConfig.salt);
 			// const access_token = crypto.randomBytes(30).toString("hex");
 
-			const newUser = await new User({
+			const newUser = new User({
+				_id: new mongoose.Types.ObjectId(),
 				firstName,
 				lastName,
 				userName,
 				email,
 				password,
 				userFriends,
-			}).save();
+			})
+			
+			newUser.save()
 
+			console.log(newUser, ' created')
 			return res.status(201).json(newUser);
 		} catch (err) {
 			return res.status(500).json({ message: 'Internal Server Error' });

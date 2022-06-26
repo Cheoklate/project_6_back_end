@@ -19,7 +19,7 @@ const habitSeeds = [
 			habitDesc: '123',
 			isPublic: true,
 			frequencyUnit: 'daily',
-			frequencyNumber: 0,
+			frequencyNumber: 1,
 			sharedWith: [{ usersSharedWith_id: { _id: '62aae7c2fd55155e96803269' } }],
 		},
 	];
@@ -37,9 +37,12 @@ const userSeeds = [
 				userHabits_id: { _id: '62aae3416434f773dcfa9bd4' },
 				habitName: 'Eat veg',
 				habitStartDate: new Date('2022-06-20T14:56:59.301Z'),
+				isPublic: true,
+				frequencyUnit: 'daily',
+				frequencyNumber: 1,
 				habitAction: [
-					{ action: 'Done', date: new Date('2022-06-21T14:56:59.301Z') },
-					{ action: 'Done', date: new Date('2022-06-22T14:56:59.301Z') },
+					{ action: 'done', date: new Date('2022-06-21T00:00:00.000Z') },
+					{ action: 'done', date: new Date('2022-06-22T00:00:00.000Z') },
 					
 				],
 				habitStreak: 
@@ -48,6 +51,7 @@ const userSeeds = [
 						completedCount: 0,
 						streakCount: 2,
 						achievementRate: 0,
+						lastUpdated: new Date('2022-06-20T00:00:00.000Z'),
 					},
 				reminders: 
 					{

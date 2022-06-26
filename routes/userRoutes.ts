@@ -12,7 +12,10 @@ router.post('/updatehabit', HabitController.updateHabit);
 router.get('/friends', FriendController.allFriends)
 router.post('/friends', FriendController.addFriend)
 
+router.get('/viewhabit', HabitController.viewHabit)
+
 router.get('/friendrequest', FriendController.friendRequest)
+router.post('/friendrequest', FriendController.requestAction)
 
 
 export default router;
