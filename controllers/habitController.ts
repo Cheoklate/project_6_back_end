@@ -2,6 +2,8 @@ import e, { Response, Request } from 'express';
 import mongoose from 'mongoose';
 import { Habit, User } from '../models/User';
 import moment from 'moment';
+import resetStreakData from './test';
+import { arrayBuffer, json } from 'stream/consumers';
 
 const HabitController = {
 	allHabits: async (req: Request, res: Response) => {
@@ -54,6 +56,10 @@ const HabitController = {
 					userHabits: {
 						userHabits_id: newHabit._id,
 						habitName,
+						frequencyNumber,
+						frequencyUnit,
+						isPublic,
+						habitStartDate: moment(moment(new Date()).format("YYYY-MM-DD")),
 						reminders: {
 							reminderMethod,
 							reminderMethodContact,
@@ -63,10 +69,11 @@ const HabitController = {
 						},
 						habitAction: [],
 						habitStreak: {
-							totalCompleted: 0,
+							totalExpectedCount: frequencyNumber,
 							completedCount: 0,
 							streakCount: 0,
-							numberSkips: 0,
+							achievementRate: 0,
+							lastUpdated: moment(moment(new Date()).format("YYYY-MM-DD"))
 						},
 					},
 				},
@@ -83,69 +90,151 @@ const HabitController = {
 	updateHabit: async (req: Request, res: Response) => {
 		console.log(req.body, 'request');
 		try {
-			const { userId, habitId, action } = req.body;
-			const results = await User.findOne(
-				{ _id: userId },
-				{ 'userHabits.userHabits_id': habitId }
-			);
-			const checkIfExists = await User.findOne(
-				{
-					_id: userId,
-					'userHabits.userHabits_id': habitId,
-					'userHabits.habitAction.date': moment(new Date()).format(
-						'YYYY-MM-DD'
-					),
-				},
-				'userHabits.habitAction.date'
-			).exec();
-			console.log('exists', JSON.stringify(checkIfExists));
-
-			if (checkIfExists) {
+			const { userId, habitId, action, actionDate } = req.body;
+		// check if action already exists
+		const checkIfExists = await User.findOne(
+				{_id: userId},
+				{	
+					userHabits:{
+						$elemMatch:{
+							userHabits_id:habitId,
+							habitAction: {$elemMatch: {date: moment(actionDate).format('YYYY-MM-DD')}}
+					}}},).exec()
+					// 'userHabits.$.userHabits_id': habitId,
+					// 'userHabits.$.habitAction.date': moment(actionDate).format(
+					// 	'YYYY-MM-DD'
+					// )},'userHabits.habitAction.date').exec();
+			console.log('exists', JSON.parse(JSON.stringify(checkIfExists)), JSON.parse(JSON.stringify(checkIfExists)).userHabits.length === 0);
+			// const checkIfExists = await User.findOne({_id: userId, 
+			// 'userHabits.userHabits_id': habitId,
+			// userHabits:{
+			// 	$elemMatch: {userHabits_id: habitId,
+				
+				
+			// }}, 'userHabits.habitAction.date').exec();
+			// 'userHabits.$.habitAction.date':moment(actionDate).format(
+			// 			'YYYY-MM-DD')
+			// }, 'userHabits.habitAction.date '
+			
+			
+			if (JSON.parse(JSON.stringify(checkIfExists)).userHabits.length !== 0) {
+				let increment
+				if(action === 'done') {
+					 increment = 1
+				} else {
+					increment = 0
+				}
 				await User.updateOne(
-					{
-						_id: userId,
-						'userHabits.userHabits_id': habitId,
-						'userHabits.habitAction.date': moment(new Date()).format(
-							'YYYY-MM-DD'
-						),
-					},
+					{_id: userId, 'userHabits.userHabits_id': habitId,
+			'userHabits.habitAction.date':moment(actionDate).format(
+						'YYYY-MM-DD')
+			},
 					{
 						$set: {
-							'userHabits.$.habitAction': {
-								action: action,
-								date: moment(new Date()).format('YYYY-MM-DD'),
-							},
-						},
-					}
-				);
-				console.log('updated current days field');
+							'userHabits.$.habitAction.$[update].action': action,
+							// 'userHabits.$.habitAction.0.date':moment(actionDate).format('YYYY-MM-DD'),
+						}	,
+						$inc: {
+							'userHabits.$.habitStreak.completedCount': increment
+						}
+					}, {arrayFilters: [{'update.date': moment(actionDate).format('YYYY-MM-DD')}]}
+				).exec();
+				console.log('updated current days field', increment);
 			} else {
+				console.log('does not exist')
 				const newAction = await User.updateOne(
 					{ _id: userId, 'userHabits.userHabits_id': habitId },
 					{
 						$push: {
 							'userHabits.$.habitAction': {
 								action: action,
-								date: moment(new Date()).format('YYYY-MM-DD'),
+								date: moment(actionDate).format('YYYY-MM-DD'),
 							},
 						},
 					}
 				);
 				console.log('new Action', newAction);
 			}
-// update streak count p1
-			if (action === 'done') {
-				console.log(habitId, 'habitid')
-				const updateStreak = await User.findOneAndUpdate({ _id: userId, 'userHabits.userHabits_id': habitId },
-				{$inc: {'userHabits.$.habitStreak.totalCompleted' :1}}).exec()
-				console.log(JSON.stringify(updateStreak), 'updatestreak')
+			// set streak Info
+			const getHabitFrequency =  await Habit.findById(habitId,'frequencyUnit')
+			const frequencyUnit = JSON.parse(JSON.stringify(getHabitFrequency)).frequencyUnit
+
+			console.log(frequencyUnit, 'habit frequency')
+			const getHabitDetails = await User.findOne({_id: userId},
+				{	
+					userHabits:{
+						$elemMatch:{
+							userHabits_id:habitId
+						}
+					}
+			}).then((res)=>{
+				console.log('getHabitDetails', JSON.parse(JSON.stringify(res)).userHabits[0]);
+
+				let habitDetails = JSON.parse(JSON.stringify(res)).userHabits[0]
+
 				
-			}
+				habitDetails.habitStreak.achievementRate = habitDetails.habitStreak.completedCount / habitDetails.habitStreak.totalExpectedCount
+
+				console.log(habitDetails, 'before')
+				const habitObjectData = resetStreakData(frequencyUnit, habitDetails, action)
+				console.log(habitObjectData, 'habitobjdatabef')
+				return habitObjectData
+					
+				}).then((habitObjectData)=>{
+				
+					console.log(habitObjectData, 'habitobjdata')
+
+					console.log(habitId, userId, typeof(habitId), typeof(userId))
+					
+					User.findOneAndUpdate({
+					_id: userId,
+					'userHabits.userHabits_id':habitId
+					},{
+					$set:{
+						'userHabits.$.habitStreak.completedCount': habitObjectData.habitStreak.completedCount,
+						'userHabits.$.habitStreak.streakCount': habitObjectData.habitStreak.streakCount,
+						'userHabits.$.habitStreak.achievementRate': habitObjectData.habitStreak.achievementRate,
+						'userHabits.$.habitStreak.lastUpdated': habitObjectData.habitStreak.lastUpdated,
+					}}).exec((err, res)=> {
+						if (err) return console.log(err,'err')
+						console.log('updatehabitdetails',res)
+						
+					})
+					return res.status(201).json({message:'done'});
+				})
+				
+			
+				
+			
+			
+		
 		} catch (err) {
 			console.log(err, 'err');
 			return res.status(500).json({ message: 'Internal Server Error', err });
 		}
 	},
+	viewHabit: async (req: Request, res: Response) => {
+		console.log(req.query, 'request');
+		try{
+			const {userId, habitId} = req.query;
+			if (!habitId || !userId )
+				return res.status(400).json({ message: 'Missing data' });
+				
+			const viewHabitDetails = await User.findOne({_id: userId},
+				{	
+					userHabits:{
+						$elemMatch:{
+							userHabits_id:habitId
+						}
+					}
+			}).exec()
+
+			// console.log(viewHabitDetails, 'viewhabitdetails')
+			return res.status(201).json(viewHabitDetails)
+		}catch (err){
+			console.log(err,'err')
+		}
+	}
 };
 
 export default HabitController;
