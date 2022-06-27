@@ -100,29 +100,19 @@ const HabitController = {
 							userHabits_id:habitId,
 							habitAction: {$elemMatch: {date: moment(actionDate).format('YYYY-MM-DD')}}
 					}}},).exec()
-					// 'userHabits.$.userHabits_id': habitId,
-					// 'userHabits.$.habitAction.date': moment(actionDate).format(
-					// 	'YYYY-MM-DD'
-					// )},'userHabits.habitAction.date').exec();
-			console.log('exists', JSON.parse(JSON.stringify(checkIfExists)), JSON.parse(JSON.stringify(checkIfExists)).userHabits.length === 0);
-			// const checkIfExists = await User.findOne({_id: userId, 
-			// 'userHabits.userHabits_id': habitId,
-			// userHabits:{
-			// 	$elemMatch: {userHabits_id: habitId,
-				
-				
-			// }}, 'userHabits.habitAction.date').exec();
-			// 'userHabits.$.habitAction.date':moment(actionDate).format(
-			// 			'YYYY-MM-DD')
-			// }, 'userHabits.habitAction.date '
 			
+			console.log('exists', JSON.parse(JSON.stringify(checkIfExists)).userHabits[0], JSON.parse(JSON.stringify(checkIfExists)).userHabits.length === 0);
 			
-			if (JSON.parse(JSON.stringify(checkIfExists)).userHabits.length !== 0) {
-				let increment
-				if(action === 'done') {
+			let increment: Number
+			if(action === 'done') {
 					 increment = 1
 				} else {
 					increment = 0
+				}
+
+			if (JSON.parse(JSON.stringify(checkIfExists)).userHabits.length !== 0) {
+				if(action === 'undone'){
+					increment = -1
 				}
 				await User.updateOne(
 					{_id: userId, 'userHabits.userHabits_id': habitId,
@@ -151,6 +141,9 @@ const HabitController = {
 								date: moment(actionDate).format('YYYY-MM-DD'),
 							},
 						},
+						$inc: {
+							'userHabits.$.habitStreak.completedCount': increment
+						}
 					}
 				);
 				console.log('new Action', newAction);
