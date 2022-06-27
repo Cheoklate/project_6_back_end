@@ -87,8 +87,15 @@ const userSeeds = [
 					{ action: 'done', date:  new Date('2022-06-16T00:00:00.000Z') },
 					{ action: 'done', date:  new Date('2022-06-17T00:00:00.000Z') },
 					{ action: 'done', date:  new Date('2022-06-18T00:00:00.000Z') },
+					{ action: 'undone', date:  new Date('2022-06-19T00:00:00.000Z') },
+					{ action: 'undone', date:  new Date('2022-06-20T00:00:00.000Z') },
+					{ action: 'undone', date:  new Date('2022-06-21T00:00:00.000Z') },
+					{ action: 'undone', date:  new Date('2022-06-22T00:00:00.000Z') },
+					{ action: 'undone', date:  new Date('2022-06-23T00:00:00.000Z') },
+					{ action: 'undone', date:  new Date('2022-06-24T00:00:00.000Z') },
 					{ action: 'done', date:  new Date('2022-06-25T00:00:00.000Z') },
 					{ action: 'done', date:  new Date('2022-06-26T00:00:00.000Z') },
+					
 				],
 				habitStreak: 
 					{
