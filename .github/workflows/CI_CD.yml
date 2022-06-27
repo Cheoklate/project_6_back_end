@@ -29,12 +29,9 @@ jobs:
 
             #Now we have got the access of EC2 and we will start the deploy .
             cd /home/ubuntu/project_6_back_end &&
-            git checkout main &&
-            git fetch --all &&
-            git reset --hard origin/main &&
-            git pull origin main &&
-            npm run build &&
             kill-port 3004 &&
+            git checkout main &&
+            git pull origin main &&
             nohup nodemon index.ts > /dev/null 2>&1
 
           '
