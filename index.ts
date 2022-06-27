@@ -10,7 +10,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/project6', () => {
 });
 
 const app = express();
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://track-abit-front.herokuapp.com';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 app.use(
 	cors({
