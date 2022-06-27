@@ -49,18 +49,19 @@ export default async function resetStreakData( frequencyUnit:string, habitObject
 
     
   if ((frequencyUnit === "daily" && diff === 1) || (frequencyUnit === "weekly" && diff >=6 ) || (frequencyUnit === "monthly" && diff >=29)) {
-    if(habitObject.habitStreak.achievementRate >= 1) {
-      console.log('reset')
-      habitObject.habitStreak.streakCount += 1
-    } else {
-      habitObject.habitStreak.streakCount = 0
-    }
+    
     if(action === 'done'){
       habitObject.habitStreak.completedCount = 1
     } else {
       habitObject.habitStreak.completedCount = 0
     }
     habitObject.habitStreak.achievementRate = habitObject.habitStreak.completedCount/habitObject.habitStreak.totalExpectedCount
+    if(habitObject.habitStreak.achievementRate >= 1) {
+      console.log('reset')
+      habitObject.habitStreak.streakCount += 1
+    } else {
+      habitObject.habitStreak.streakCount = 0
+    }
     habitObject.habitStreak.lastUpdated = curDate
   } 
   return habitObject  
