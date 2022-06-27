@@ -9,7 +9,22 @@ const HabitController = {
 	allHabits: async (req: Request, res: Response) => {
 		try {
 			const { userId } = req.query;
-			const user = await User.findById(userId);
+			console.log(userId,'usedId')
+			const user = await User.findById(userId).exec();
+			const userHabitDetails = user.userHabits;
+
+			console.log(userHabitDetails);
+
+			return res.status(200).json(userHabitDetails);
+		} catch (err) {
+			return res.status(500).json({ message: 'Internal Server Error' });
+		}
+	},
+	friendHabits: async (req: Request, res: Response) => {
+		try {
+			const { userName } = req.query;
+			console.log(userName,'usedId')
+			const user = await User.findOne({userName:userName}).exec();
 			const userHabitDetails = user.userHabits;
 
 			console.log(userHabitDetails);
